@@ -50,6 +50,9 @@ export const apiToReactFlow = (apiWorkflow) => {
                 source,
                 target,
                 type: edge.edgeType || 'default',
+                markerEnd: {
+                    type: 'arrowclosed',
+                },
             };
         })
         .filter(edge => edge.id && edge.source && edge.target);

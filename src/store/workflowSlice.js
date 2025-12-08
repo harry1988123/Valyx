@@ -64,6 +64,7 @@ const workflowSlice = createSlice({
         },
         setPropertiesPanelDirty: (state, action) => {
             state.propertiesPanelDirty = action.payload;
+            state.hasUnsavedChanges = true;
         },
     },
 });

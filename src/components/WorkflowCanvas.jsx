@@ -9,6 +9,7 @@ import ReactFlow, {
     applyEdgeChanges,
     ReactFlowProvider,
     useReactFlow,
+    MarkerType, BezierEdge
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -67,10 +68,18 @@ const Flow = () => {
             const nextEdges = applyEdgeChanges(changes, edges);
             setEdgesLocal(nextEdges);
 
-            // Sync edge changes (removal, selection)
-            requestAnimationFrame(() => {
-                dispatch(setEdges(nextEdges));
-            });
+            // Only sync to Redux for structural changes (remove, add)
+            // Selecting an edge shouldn't mark workflow as dirty
+            const shouldSync = changes.some(change =>
+                change.type === 'remove' ||
+                change.type === 'add'
+            );
+
+            if (shouldSync) {
+                requestAnimationFrame(() => {
+                    dispatch(setEdges(nextEdges));
+                });
+            }
         },
         [edges, dispatch]
     );
@@ -82,8 +91,8 @@ const Flow = () => {
                 console.warn('Invalid connection: Trigger nodes cannot have incoming edges');
                 return;
             }
-            // Use 'addEdge' which returns the new list
-            const nextEdges = addEdge(connection, edges);
+            // Use 'addEdge' to create connection with marker
+            const nextEdges = addEdge({ ...connection, markerEnd: { type: MarkerType.ArrowClosed } }, edges);
             setEdgesLocal(nextEdges);
             dispatch(setEdges(nextEdges));
         },
